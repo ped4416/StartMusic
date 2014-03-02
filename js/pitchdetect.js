@@ -40,10 +40,46 @@ var HEIGHT=42;
 var confidence = 0;
 var currentPitch = 0;
 
+
 //create an array to hold all the incoming frequencies. 
 var pitchInArr = new Array();
+var freq;
+var noteInScale;
 //booleans to control the states of the notes
 var array1 = true;//new Boolean("true");
+
+//create arrays to go through note values
+   //the set of all frequencies we are looking for
+			var scales = new Object();
+			//currently in HZ convert all to Midi notes? 
+			//scales.a = new Array(110, 220, 440, 880);
+			//scales.c = new Array(32.703, 32.703*2, 32.703*4, 32.703*8);
+
+			//and a midi note version to cover all 12 semitones from C4 to B8
+			scales.c = new Array(36, 48, 60, 72, 84, 96, 108);
+			scales.cSh = new Array(37, 49, 61, 73, 85, 97, 109);
+			scales.d = new Array(38, 50, 62, 74, 86, 98, 110);
+			scales.dSh = new Array(39, 51, 63, 75, 87, 99, 111);
+			scales.e = new Array(40, 52, 64, 76, 88, 100, 112);
+			scales.f = new Array(41, 53, 65, 77, 89, 101, 113);
+			scales.fSh = new Array(42, 54, 66, 78, 90, 102, 114);
+			scales.g = new Array(43, 55, 67, 79, 91, 103, 115);
+			scales.gSh = new Array(44, 56, 68, 80, 92, 104, 116);
+			scales.a = new Array(45, 57, 69, 81, 93, 104, 117);
+			scales.aSH = new Array(46, 58, 70, 82, 94, 105, 118);
+			scales.b = new Array(47, 59, 71, 83, 95, 106, 119);
+
+			//these are the frequences we have captured for a C Major scale. 
+			var freqs = new Array(71, 74, 76, 77, 79, 81, 83, 84);
+
+				var avg_count = 4;
+			var averages = new Array();
+			var ind = 0;
+
+			var boundary_note_val = 9;
+
+			var notes = new Array(20, 10, 10, 20, 10, 10, 10, 10, 10, 10, 
+			10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 19, 10, 20, 10 , 10, 10, 10);
 
 /* TODO
 Compute the amplitude of incoming signal and constrain it to only come on when a certain threshold is reached? 
@@ -230,6 +266,7 @@ function noteFromPitch( frequency ) {
 
 function frequencyFromNoteNumber( note ) {
         //print out the frequency to console
+        //console.log("Pitch Midi Note = " + note);
         //console.log("Pitch Midi Note = " + 440 * Math.pow(2,(note-69)/12));
 	return 440 * Math.pow(2,(note-69)/12);//this formula gives the midi notes version value of frequency 
 }
@@ -456,33 +493,16 @@ function fillArrayWithNotes(currentPitchToArray)
     //common error as well as 0 frequency readings
     if(currentPitchToArray < 10000 && currentPitchToArray > 80)
     {
-      
-        var counter = 0; // to keep track of the number of samples coming in?
-        var sum = 0;//variable to store the sum of initial array
-        var startingTotal = 0;//give the total length of initial array
+       
+       //convert the frequencies to MIDI notes here. 
+       var noteToMidi = 69 + 12*Math.log(currentPitchToArray/440)/Math.log(2);
+       //console.log("The Pitch Value Is Now = " + noteToMidi);//print out the array
+	   /******************************************************************
+	   fill an array with all the current notes coming in .. COMPLETED!
+	   ******************************************************************/
+       
 
-        //attempt to remove harmonic content from the array
-  //       for(var i = 0; i < 10; i ++)
-		// {
-	 //    	// append new value to the array
-		//     inarr[inarr.length] = (currentPitch);//add a new note reading to the array (no quotes!! "" ) 
-		//     console.log("CurrentPitch = " + currentPitch);
-		     
 
-		//     //remove elemnts from array that are not pure tones
-		//     //if(inarr[i] * 2 == inarr[i])
-		//     // if(inarr.indexOf(lastIndex)
-		//     // {
-		//     // 	inarr.indexOf[i];
-		//     // 	inarr[i].splice([i], 1);//delete the harmonic elements.
-		//     // }
-
-		//     console.log("Array values = " + inarr[i]);
-		// }  
-
-       /******************************************************************
-       fill an array with all the current notes coming in .. COMPLETED!
-       ******************************************************************/
        //closure behaviour 
        //add the frequecies to the array given from the addToArr function
        addToArr(pitchInArr);
@@ -491,16 +511,14 @@ function fillArrayWithNotes(currentPitchToArray)
 	       	//for (var i = 0; i < 1; i ++)
        	    //{
        	  	 //inarr[inarr.length] = (currentPitchToArray);
-       	  	 inarr.push(currentPitchToArray);//need to add i as the array element? 
+       	  	 inarr.push(Math.round(noteToMidi));
        	    //}
-       	    //return console.log("The Pitch Value Is Now = " + inarr);//print out the array
+       	    //console.log("The Pitch Value Is Now = " + inarr);//print out the array
         }
-       
-
       
 	       //allow the last array ellement to be printed
 	       var lastIndex = (pitchInArr[pitchInArr.length -1]);//get last index to be added make sure it is parsed to be usable 
-		   //console.log("LastIndex = " + lastIndex);
+		   console.log("LastIndex = " + lastIndex);
 	
 			/******************************************************************
 			   build an averager method to select boundaries 
@@ -514,209 +532,109 @@ function fillArrayWithNotes(currentPitchToArray)
 
 		//constrain the length of the array using an if statement so website does not crash!
     	if(pitchInArr.length < 200)
-    	//{
-    	//if(pitchInArr.length > 180)
     	{
 
-    
-			 var indexChange;//variable to define the index boundaries if the moving average jumps more than a certain amount. 
-			 var confidenceOfBoundaryChange;//variable to track the confidence of a possible change. 
-			 var smallestBoundary = 1;//using midinotes or Frequency will alter this..  
-			 var largestBoundary = 2;//using midinotes or Frequency will alter this.. 
-			
-	         
- 
-            /* method to compare elements and remove the harmonics from the array. This seems to
-            be creating an error in reading the array lengths. Need this to work to remove elements. 
+            /* method to compare elements and remove the harmonics from the array by assigning all incoming pitches to 
+            definite notes in the scales 
+            */  
 
-            */   
+         
+            console.log("I am here");
+			//iterate the captured freqs and figure out which note each one is
+			for (var i=0;i<pitchInArr.length;i++)
+			{
+			  freq = pitchInArr[i];
+			  //console.log("Looking for note of "+freq);
+			  for (noteInScale in scales)
+			  {
+			      //console.log("Checking if "+noteInScale+" is the note for "+freq);
+			      //console.log(scales[noteInScale]);
 
-            //var filteredArr = new Array();
-            //filterHarmonics(filteredArr);//add the filtered notes into a new array. 
-
-            //console.log("Filtered Array = " + filteredArr);
-
-            //function filterHarmonics(filter){
-				for(var i = 0; i < pitchInArr.length; i ++)
+			    // now look in the frequencies for this note
+			    for (var j=0;j<scales[noteInScale].length; j++)
 			    {
-			    	for(var j = 1; j < pitchInArr.length; j ++)//compares 1 element above first
-			    	{
-			    		for(var k = 2; k < pitchInArr.length; k ++)//compares 2 elements above the first
-			    		{
-			    			//four variables to remove twitchy harmonics in a range.
-							var jmax = pitchInArr[j] + 10;
-			    			var jmin = pitchInArr[j] - 10;
-
-			    			var kmax = pitchInArr[k] +10;
-			    			var kmin = pitchInArr[k] - 10;
-						    //remove elemnts from array that are not pure tones
-						    if(pitchInArr[i] >= jmin/2 && pitchInArr <= jmax/2 || pitchInArr[i] >= kmin/2 && pitchInArr[i] <= kmax/2)// || pitchInArr[i] == 130.86053412462908  )
-						    //if(inarr.indexOf(lastIndex)
-						    {
-						    	console.log("Harmonic Alert");
-						    	//get the index of the harmonic 
-						    	pitchInArr.indexOf([i]);
-						    	console.log("Array values of low harmonics = " + pitchInArr[i]);						    	pitchInArr.splice([i], 1);//delete the low harmonics
-						    	//delete pitchInArr[i];	
-						    	pitchInArr.splice([i], 1);
-						    	//console.log("Array values of now " + pitchInArr[i]);
-						    	//console.log("Array is now length " + pitchInArr.length);
-						    	
-						    }
-
-						    //filter.push([i]);//add the new i elements to the filter
-						    
-						}
-						//console.log("FREQUENCY IS NOW " + pitchInArr[i]);
-					} 
-				}
-			//	return filter; 
-			//}
-
-
-            /* Average filter trial 1 using for loops to iterate through and check if the frequency has jumped more
-            than the maximum 15hz between semitones for the C4 semitone position. 
-            Semi tones change in a non linear way so need to be careful when working out note changes. 
-            C4 to C#4 = 15.55Hz
-            B4 to C5 = 29.37Hz
-            I may need various statements to change the value of the minimum pitch change variable. 
-
-            */
-            //var newArray = new Array();
-            //selectNoteBoundry(newArray);
-
-            //function selectNoteBoundry(addFirstNote)
-            //{
-            	// var note1 = [],//a new array to hold the pitches related to note 1
-            	//     k = 0;
-            	//     n = note.length;
-                //console.log("Full Array = " + pitchInArr);
-                
-	            var boundarySize = 10;
-	            var fullArrayLength = pitchInArr.length; 
-	         
-	            console.log(fullArrayLength);
-	            //have for loops start at higher indexes to ignore false initial readings
-	            for(var i = 2; i < pitchInArr.length; i ++)
-				{
-			    	for(var j = 3; j < pitchInArr.length; j ++)
-			    	{
-
-			    		// console.log("i + 10 = " + boundofI);
-			    		// console.log("j = " + pitchInArr[j]);
-			    		var lowerBound = pitchInArr[i] - boundarySize;
-			    		var higherBound = pitchInArr[i] + boundarySize;
-
-			    		// console.log("i = " + pitchInArr[i]);
-			    		// console.log("j is " + pitchInArr[j]);
-		       //          console.log("Lower Bound is " + lowerBound);		
-		       //          console.log("Higher Bound is " + higherBound);	
-
-
-		                if(pitchInArr[j] < lowerBound || pitchInArr[j] > higherBound)
-		                {
-		                	if(array1 == true){
-			                	//console.log("The Array Has Changed here" );//+ pitchInArr[j]);
-	                            //get exact index of the possible note change and subtract 1 to
-								//give the last index of the note to be added to a new array.
-								var noteBoundry = pitchInArr.indexOf([j]-1);
-								var newArray = pitchInArr.slice(0, noteBoundry);//gives the start and end of first note 
-								console.log("The First Note ARRAY = " + newArray);
-
-								
-								 // console.log("New Array Length = " + newArray.length);
-	                            //if(pitchInArr.length <= newArray.length +2){
-				                  //console.log("The First Note ARRAY = " + newArray);
-				                  //window.setTimeout(2000);//set a slight pause 
-			                    //}
-								//console.log("Full Array = " + pitchInArr.length);
-								//console.log("Note 1 length = " + newArray.length);
-	                            //console.log("The = " + addFirstNote);
-								// while (k < n){
-								// 	note1.push(note.slice(k, k += len));
-								// }
-								
-						    } 
-                            array1 = false;//set bool to true to stop this printing out anymore. 
-                            //console.log(array1);
-							//return note1;
-						    //console.log("The Note has changed!" + note1);
-
-						}
-						
-
-					}
-					//return newArray;
-				}
-				//return addFirstNote;
-						
-			//}
-			 
-			  //console.log(newArray.isArray([]));
-			  //console.log(newArray.length);
-			// console.log("The First Note ARRAY = " + newArray);
-  
-        
-			
-
-
-
-
-		   
-	        //console.log("Array Length Now = " + pitchIn.length);
-	        //run a loop to check how many elements are now in the array.. ? Bug not allowing more than one element to be seen
-			// for (var i = 0; i < pitchIn.length; i ++)
-			// {  
-			
-			//    //add all the notes together to create one long number
-			//    //have to parse the input to int or float before they can be edited properly as numbers.  
-			//    pitchIn[i] = parseFloat(pitchIn[i], 10);
-			//    sumNew += pitchIn[i];//get the total of all current notes and the starting array notes. 
-			//    //use the counter i to access any date needed
-			//    //update the array numbers in the console to see whats there.
-			//    console.log("Pushed Array value  = " + pitchIn[i]);
-			//    //counter ++; 
-			//    //console.log("Array Length Now = " + pitchIn.length);
+			       if (scales[noteInScale][j] == freq){// we found it!
+			          console.log(""+freq+" is a "+noteInScale);
+			          //console.log(freq);
+			          var filteredNote = freq;
+			       }
+                    
+			       //return filteredNote;
+			    }
+			  }
+			}
+            
+			// console.log("I need a new note " + filteredNote);
+			// // random notes
+			// var notes = new Array();
+			// for (var i=0;i<20;i++){
+			//     notes[i] = Math.random() * 127;
 			// }
-			
-			//runningAverage needs to = (sum + new_number) / (total + 1) 
-			//var runningAverage = (sum + lastIndex) / (startingTotal +  1);//1 needs to iterate up once for each new note reading. 
-			//console.log("RunningAverage Note value = " + runningAverage);
-			
-			//two methods 1 Add a new number in to the array and take the average of the running total. 
-			// or 2: multiply the average of the first few fewquencies and divide by 
-			
+			// // round them up
+			// console.log(notes);
+			// for (var i=0;i<notes.length;i++){
+			//     notes[i] = Math.round(notes[i]);
+			// }
+			// console.log("Notes rounded = " + notes);
+
+			//this example has some nasty changes and it still singles out the 2 note changes.
+			//it starts with 10.. then 20 then back to 10. 
+			//need to find a way to give the first group of notes
+			//var notes = new Array(20, 10, 10, 20, 10, 10, 10, 10, 10, 10, 
+			//10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 19, 10, 20, 10 , 10, 10, 10);
+			//console.log("Notes = " + notes);
+
+			// calculate the moving average 'avg_count' points over the notes array
+		
+			//var firstNote = new Array();
+			//var firstN = 0;
+
+			//I needed to add a -1 to the average count to catch [0] from notes 
+			for (var i=avg_count-1; i < pitchInArr.length;i++)
+			{
+			    //averages[ind] = (notes[i] + notes[i-1] + notes[i-2]) / 3;
+			    averages[ind] = 0;
+			    for (var j = 0; j<avg_count; j++)
+			    {
+			      averages[ind] += pitchInArr[i-j];
+			      
+			    }
+
+			    var averagePass = averages[ind] = averages[ind] / avg_count; 
+			    
+			    //add in a statement to show prediction of a note change using a boundary value relevant to midi or frequency?
+			    if(averages[ind] > averages[ind - avg_count] + boundary_note_val || averages[ind] < averages[ind - avg_count] - boundary_note_val){
+			       
+			       // //give the first note of the array ?? 
+			       // for(var k = 0; k < notes[ind]; k ++)
+			       // {
+			       //  firstNote += notes[j];
+			       //  console.log("First note of array in = " + firstNote);
+			       // }  
+
+			       console.log("The note has changed");
+			       console.log(averages[ind]);//print out the equvalent note value of the input notes
+			    }
+			    //console.log("Trial = " + averagePass);
+			    averages[ind] = Math.round(averages[ind]);
+			    ind ++ ;
+			}
+			    
+			//console.log(averages);
+		}
+
+
+
+            
+
+           
+        
+
+            
 
 		/*******************************************************************
 		calculate the average note value of each region to give the melody
 		********************************************************************/
-	    
-
-			var sumOfNotes = 0;
-			
-			for(var l = 0; l < pitchInArr.length; l ++)
-			{
-				//add all the notes together to create one long number
-				//pitchInArr[i] = (pitchInArr[i], 10);
-				sumOfNotes += pitchInArr[l];
-				//print out full array of incoming pitches
-				//if(pitchInArr.length == 47)
-				//{
-					//print out the array
-					console.log("Array values = " + pitchInArr[l]);
-					//reset the array to 0
-					//pitchInArr.length = 0;
-				//} 
-		    }
-		    //console.log("Array Length Now = " + pitchInArr.length);
-			// //outside the for loop find out the average of the note region
-		    var averageOfNoteRegion = sumOfNotes / pitchInArr.length; 
-			
-		    //console.log("Average Note value = " + averageOfNoteRegion);
-		    // console.log("Pitches are now "  + pitchInArr);
-       //      console.log("Array is now length " + pitchInArr.length);
-      //       console.log("Sum of Notes = " + sumOfNotes);
-	    }// close the if statement
 		 
     }
 }
