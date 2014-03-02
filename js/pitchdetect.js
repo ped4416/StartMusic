@@ -50,36 +50,36 @@ var array1 = true;//new Boolean("true");
 
 //create arrays to go through note values
    //the set of all frequencies we are looking for
-			var scales = new Object();
-			//currently in HZ convert all to Midi notes? 
-			//scales.a = new Array(110, 220, 440, 880);
-			//scales.c = new Array(32.703, 32.703*2, 32.703*4, 32.703*8);
+var scales = new Object();
+//currently in HZ convert all to Midi notes? 
+//scales.a = new Array(110, 220, 440, 880);
+//scales.c = new Array(32.703, 32.703*2, 32.703*4, 32.703*8);
 
-			//and a midi note version to cover all 12 semitones from C4 to B8
-			scales.c = new Array(36, 48, 60, 72, 84, 96, 108);
-			scales.cSh = new Array(37, 49, 61, 73, 85, 97, 109);
-			scales.d = new Array(38, 50, 62, 74, 86, 98, 110);
-			scales.dSh = new Array(39, 51, 63, 75, 87, 99, 111);
-			scales.e = new Array(40, 52, 64, 76, 88, 100, 112);
-			scales.f = new Array(41, 53, 65, 77, 89, 101, 113);
-			scales.fSh = new Array(42, 54, 66, 78, 90, 102, 114);
-			scales.g = new Array(43, 55, 67, 79, 91, 103, 115);
-			scales.gSh = new Array(44, 56, 68, 80, 92, 104, 116);
-			scales.a = new Array(45, 57, 69, 81, 93, 104, 117);
-			scales.aSH = new Array(46, 58, 70, 82, 94, 105, 118);
-			scales.b = new Array(47, 59, 71, 83, 95, 106, 119);
+//and a midi note version to cover all 12 semitones from C4 to B8
+scales.c = new Array(36, 48, 60, 72, 84, 96, 108);
+scales.cSh = new Array(37, 49, 61, 73, 85, 97, 109);
+scales.d = new Array(38, 50, 62, 74, 86, 98, 110);
+scales.dSh = new Array(39, 51, 63, 75, 87, 99, 111);
+scales.e = new Array(40, 52, 64, 76, 88, 100, 112);
+scales.f = new Array(41, 53, 65, 77, 89, 101, 113);
+scales.fSh = new Array(42, 54, 66, 78, 90, 102, 114);
+scales.g = new Array(43, 55, 67, 79, 91, 103, 115);
+scales.gSh = new Array(44, 56, 68, 80, 92, 104, 116);
+scales.a = new Array(45, 57, 69, 81, 93, 104, 117);
+scales.aSH = new Array(46, 58, 70, 82, 94, 105, 118);
+scales.b = new Array(47, 59, 71, 83, 95, 106, 119);
 
-			//these are the frequences we have captured for a C Major scale. 
-			var freqs = new Array(71, 74, 76, 77, 79, 81, 83, 84);
+//these are the frequences we have captured for a C Major scale. 
+var freqs = new Array(71, 74, 76, 77, 79, 81, 83, 84);
 
-				var avg_count = 4;
-			var averages = new Array();
-			var ind = 0;
+	var avg_count = 4;
+var averages = new Array();
+var ind = 0;
 
-			var boundary_note_val = 9;
+var boundary_note_val = 9;
 
-			var notes = new Array(20, 10, 10, 20, 10, 10, 10, 10, 10, 10, 
-			10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 19, 10, 20, 10 , 10, 10, 10);
+var notes = new Array(20, 10, 10, 20, 10, 10, 10, 10, 10, 10, 
+10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 19, 10, 20, 10 , 10, 10, 10);
 
 /* TODO
 Compute the amplitude of incoming signal and constrain it to only come on when a certain threshold is reached? 
